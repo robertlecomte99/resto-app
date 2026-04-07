@@ -13,7 +13,7 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         \App\Models\User::create([
-            'name' => 'JUNIOR',
+            'name' => 'admin_token',
             'email' => 'admin@resto.com',
             'password' => bcrypt('password123'), // Ne jamais stocker en clair !
         ]);
