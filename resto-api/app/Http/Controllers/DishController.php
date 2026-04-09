@@ -13,9 +13,9 @@ class DishController extends Controller
 
     public function store(Request $request) {
         $data = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|min:2',
             'description' => 'nullable|string',
-            'price' => 'required|numeric'
+            'price' => 'required|numeric|min:0'
         ]);
         return Dish::create($data);
     }
