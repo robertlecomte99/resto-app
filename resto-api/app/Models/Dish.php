@@ -9,7 +9,7 @@ class Dish extends Model
 {
     //
     use HasFactory; //--trait
-    protected $fillable = ['name', 'description', 'price'];
+    protected $fillable = ['name', 'description', 'price','image'];
 
     public function orders() {
         return $this->hasMany(Order::class);
