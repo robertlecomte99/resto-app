@@ -13,7 +13,7 @@ class OrderController extends Controller
     public function index()
     {
         //On récupère les commandes avec les infos du plat associé 
-        return Order::with('dish')->orderBy('created_at', 'desc')->get();
+        return Order::with(['dish', 'menu','user'])->orderBy('created_at', 'desc')->get();
 
     }
 
@@ -30,14 +30,36 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validation : on verifie que dish_id est envoye et existe dans la table dishes
+
+        $todayMenu = Menu::where('menu_date', now()->toDateString())->first();
+
+        if (!$todayMenu) {
+            return response()->json(['message' => "Aucun menu n'est publié pour aujourd'hui."], 404);
+        }
+
+        // Vérification de la contrainte : 1 commande max par employé 
+        $alreadyOrdered = Order::where('user_id', $user->id)
+                            ->where('menu_id', $todayMenu->id)
+                            ->exists();
+
+        if ($alreadyOrdered) {
+            return response()->json(['message' => "Vous avez déjà passé votre commande pour aujourd'hui."], 429);
+        }
+
+
+        // 1. Validation :
         $validated = $request->validate([
             'dish_id' => 'required|exists:dishes,id',
+            'menu_id' => 'required|exists:menus,id',
+            'user_id' => 'required|exists:users,id'
         ]);
+
 
         // 2. Creation de la commande
         $order = Order::create([
-            'dish_id' => $validated['dish_id']
+            'dish_id' => $validated['dish_id'],
+            'menu_id' => $validated['menu_id'],
+            'user_id' => $validated['user_id']
         ]);
 
         // 3. Retourne la commande creee avec un code 201 (Created)
@@ -47,25 +69,18 @@ class OrderController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(Order $order)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+   
     public function edit(Order $order)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
@@ -77,9 +92,7 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(Order $order)
     {
         //

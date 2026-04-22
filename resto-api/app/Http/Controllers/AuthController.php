@@ -20,11 +20,12 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        $token = $user->createToken('admin-token')->plainTextToken;
-
         return response()->json([
-            'user' => $user,
-            'token' => $token
+            'token' => $user->createToken('auth')->plainTextToken,
+            'user' => [
+                'name' => $user->name,
+                'role' => $user->role, 
+            ]
         ]);
     }
 }

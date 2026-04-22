@@ -16,7 +16,8 @@ class DishController extends Controller
             'name' => 'required|string|min:2',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'type_plat' => 'string'
         ]);
 
         if ($request->hasFile('image')) {
@@ -39,7 +40,8 @@ class DishController extends Controller
             'name' => 'required|string|min:2',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'type_plat' => 'string',
         ]);
 
         if ($request->hasFile('image')) {

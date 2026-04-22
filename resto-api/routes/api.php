@@ -12,15 +12,18 @@ Route::get('/user', function (Request $request) {
 
 // --- ROUTES PUBLIQUES ---
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/dishes', [DishController::class, 'index']); // Voir le menu
 Route::post('/orders', [OrderController::class, 'store']); // Commander
 
-// --- ROUTES PROTÉGÉES (Admin uniquement) ---
+// --- ROUTES PROTÉGÉES (token requis) ---
 Route::middleware('auth:sanctum')->group(function () {
     // Gestion des plats (Ajout, Modif, Suppr)
-    Route::apiResource('dishes', DishController::class)->except(['index']);
+    Route::apiResource('dishes', DishController::class);
     
     // Gestion du flux de commandes
     Route::get('/orders', [OrderController::class, 'index']); // Voir les commandes
     Route::put('/orders/{order}', [OrderController::class, 'update']); // modif le statut
+    //menus
+    Route::apiResource('menus', MenuController::class);
+    Route::get('/current-menu', [MenuController::class, 'currentMenu']);
+
 });
