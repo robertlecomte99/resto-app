@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Menu;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -30,6 +31,12 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        // 1. Validation des données entrantes
+        $validated = $request->validate([
+            'dish_id' => 'required|exists:dishes,id',
+            'menu_id' => 'required|exists:menus,id',
+            // Plus sécurisé : on prend l'ID depuis le token d'auth
+        ]);
 
         $todayMenu = Menu::where('menu_date', now()->toDateString())->first();
 
@@ -37,38 +44,29 @@ class OrderController extends Controller
             return response()->json(['message' => "Aucun menu n'est publié pour aujourd'hui."], 404);
         }
 
-        // Vérification de la contrainte : 1 commande max par employé 
-        $alreadyOrdered = Order::where('user_id', $user->id)
-                            ->where('menu_id', $todayMenu->id)
-                            ->exists();
+        $user = $request->user(); // Récupère l'utilisateur connecté via Sanctum
 
-        if ($alreadyOrdered) {
-            return response()->json(['message' => "Vous avez déjà passé votre commande pour aujourd'hui."], 429);
+        // 2. Vérification de la limite de 2 commandes par utilisateur pour ce menu
+        $orderCount = Order::where('user_id', $user->id)
+                            ->where('menu_id', $todayMenu->id)
+                            ->count();
+
+        if ($orderCount >= 2) {
+            return response()->json(['message' => "Vous avez atteint votre limite de 2 commandes pour aujourd'hui."], 429);
         }
 
-
-        // 1. Validation :
-        $validated = $request->validate([
-            'dish_id' => 'required|exists:dishes,id',
-            'menu_id' => 'required|exists:menus,id',
-            'user_id' => 'required|exists:users,id'
-        ]);
-
-
-        // 2. Creation de la commande
+        // 3. Creation de la commande
         $order = Order::create([
             'dish_id' => $validated['dish_id'],
-            'menu_id' => $validated['menu_id'],
-            'user_id' => $validated['user_id']
+            'menu_id' => $todayMenu->id, // On force le menu du jour
+            'user_id' => $user->id // On force l'utilisateur authentifié
         ]);
 
-        // 3. Retourne la commande creee avec un code 201 (Created)
         return response()->json([
             'message' => 'Commande réussie !',
             'order' => $order->load('dish')
         ], 201);
     }
-
     
     public function show(Order $order)
     {
