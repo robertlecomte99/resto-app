@@ -14,17 +14,29 @@ Route::get('/user', function (Request $request) {
 // --- ROUTES PUBLIQUES ---
 Route::post('/login', [AuthController::class, 'login']);
 
-// --- ROUTES PROTÉGÉES (token requis) ---
-Route::middleware('auth:sanctum')->group(function () {
-    
-    Route::get('/orders', [OrderController::class, 'index']); // Voir les commandes
-    Route::post('/orders', [OrderController::class, 'store']); // Commander
-
-    Route::get('/menus/current', [MenuController::class, 'currentMenu']); //menu du jour pour les employés
-    Route::get('/orders/check-status', [OrderController::class, 'checkStatus']); // Vérifier si l'utilisateur a déjà commandé aujourd'hui
-    
-    Route::apiResource('menus', MenuController::class);//menus
-    Route::apiResource('dishes', DishController::class);// Gestion des plats (Ajout, Modif, Suppr)
-    Route::put('/orders/{order}', [OrderController::class, 'update']); // modif le statut
-
+// Routes pour les employés (ou les deux)
+Route::middleware(['auth:sanctum', 'role:employee|admin'])->group(function () {
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/menus/current', [MenuController::class, 'currentMenu']);
 });
+
+// --- ROUTES PROTÉGÉES ADMIN---
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+
+    // Commandes
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/today', [OrderController::class, 'todayOrders']);
+    Route::get('/orders/daily-stats', [OrderController::class, 'dailyStats']);
+
+    // Menus
+    
+    Route::apiResource('menus', MenuController::class);
+
+    // Plats
+    Route::apiResource('dishes', DishController::class);
+
+    Route::put('/orders/{order}', [OrderController::class, 'update']);
+    Route::delete('/orders/{order}', [OrderController::class, 'destroy']);
+});
+
+

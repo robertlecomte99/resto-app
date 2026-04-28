@@ -12,10 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectGuestsTo(fn () => response()->json(['message' => 'Unauthenticated'], 401));
-    })
+    $middleware->alias([
+                'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+                'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+                'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            ]);    })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*')) {
@@ -25,3 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
     })->create();
+
+
+    $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);

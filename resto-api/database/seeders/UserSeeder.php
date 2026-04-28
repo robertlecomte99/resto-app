@@ -17,6 +17,6 @@ class UserSeeder extends Seeder
             'email' => 'junior@resto.com',
             'password' => bcrypt('password'), // Ne jamais stocker en clair !
             
-        ]);
+        ])->assignRole('employe');
     }
 }

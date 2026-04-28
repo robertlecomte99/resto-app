@@ -19,13 +19,16 @@ class AuthController extends Controller
             return response()->json(['message' => 'Identifiants incorrects'], 401);
         }
 
-        $user = Auth::user();
+        $user = $request->user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'token' => $user->createToken('auth')->plainTextToken,
+            'token' => $token,
             'user' => [
                 'name' => $user->name,
-                'role' => $user->role, 
+                'role' => $user->getRoleNames()->first(),
             ]
         ]);
-    }
+        }
 }
+

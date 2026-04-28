@@ -15,8 +15,8 @@ class AdminUserSeeder extends Seeder
         \App\Models\User::create([
             'name' => 'super_Admin',
             'email' => 'admin@resto.com',
-            'password' => bcrypt('password123'), // Ne jamais stocker en clair !
-            'role' => 'admin',
-        ]);
+            'password' => bcrypt('password123'), 
+        ])->assignRole('admin');
+        
     }
 }
