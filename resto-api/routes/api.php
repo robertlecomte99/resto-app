@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class, 'store']); // Commander
 
     Route::get('/menus/current', [MenuController::class, 'currentMenu']); //menu du jour pour les employés
-    
+    Route::get('/orders/check-status', [OrderController::class, 'checkStatus']); // Vérifier si l'utilisateur a déjà commandé aujourd'hui
     
     Route::apiResource('menus', MenuController::class);//menus
     Route::apiResource('dishes', DishController::class);// Gestion des plats (Ajout, Modif, Suppr)

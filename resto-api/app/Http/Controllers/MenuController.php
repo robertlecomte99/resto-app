@@ -39,9 +39,10 @@ class MenuController extends Controller
             'menu_date' => $request->menu_date,
             'is_published' => true
         ]);
-
-        // Attacher les plats dans la table pivot menu_dishes 
-        $menu->dishes()->attach($request->dishes);
+        // On boucle sur les plats envoyés pour assigner l'ordre
+        foreach ($request->dishes as $index => $dishId) {
+            $menu->dishes()->attach($dishId, ['sort_order' => $index]);
+        }
 
         return response()->json(['message' => 'Menu publié avec succès', 'menu' => $menu], 201);
     }
